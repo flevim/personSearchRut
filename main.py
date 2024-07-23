@@ -3,7 +3,9 @@ import cloudscraper
 import requests
 from rutpy import clean, validate, format_rut
 from utils import get_fields, get_results, scrap_text_res
-from helpers import getDataRutificador, getDataSII
+from sii_source import SIISource
+from rutificador_source import RutificadorSource
+from source_fetcher import SourceFetcher
 
 # config 
 app = Flask(__name__)
@@ -36,11 +38,19 @@ def request_data():
         }), 400
 
 def get_data_by_rut(rut):
-    data_scrapping_src = getDataRutificador.getProfileRutificador(rut, sources['rutificador'], headers_rutificador)
-    data_api_src = getDataSII.getProfileSII(rut, sources['sii'], headers_sii)
-    combined_data = {**data_scrapping_src, **data_api_src}
+    rutificador_src = RutificadorSource(rut, sources['rutificador'], headers_rutificador)
+    sii_src = SIISource(rut, sources['sii'], headers_sii)
+    source_fetcher = SourceFetcher()
     
-    return jsonify(combined_data), 200
+    source_fetcher.add_source(rutificador_src)
+    source_fetcher.add_source(sii_src)
+    profile = source_fetcher.fetch_source(rut)
+    #print(profile)
+    #data_scrapping_src = getDataRutificador.getProfileRutificador(rut, sources['rutificador'], headers_rutificador)
+    #data_api_src = getDataSII.getProfileSII(rut, sources['sii'], headers_sii)
+    #combined_data = {**data_scrapping_src, **data_api_src}
+    
+    return jsonify(profile), 200
 
 
 if __name__ == '__main__':
