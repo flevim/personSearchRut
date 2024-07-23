@@ -11,7 +11,7 @@ def get_fields(data):
         'direccion': data[3].text,
         'ciudad': data[4].text
     }
-    
+    print(data)
     return fields
 
 def scrap_text_res(response):

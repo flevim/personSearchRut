@@ -22,10 +22,6 @@ sources = {
 }
 
 
-@app.route('/')
-def tutorial():
-    return 'Hola. para utilizar esta API debes consultar por rut: /consulta?rut=12345678-9' 
-
 @app.route('/consulta', methods=['GET'])
 def request_data():
     rut_param = request.args.get('rut')
@@ -40,7 +36,7 @@ def request_data():
         }), 400
 
 def get_data_by_rut(rut):
-    data_scrapping_src = getDataRutificador.get_data_by_scrapping(rut, sources['rutificador'], headers_rutificador)
+    data_scrapping_src = getDataRutificador.getProfileRutificador(rut, sources['rutificador'], headers_rutificador)
     data_api_src = getDataSII.getProfileSII(rut, sources['sii'], headers_sii)
     combined_data = {**data_scrapping_src, **data_api_src}
     

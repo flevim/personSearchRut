@@ -3,7 +3,7 @@ import cloudscraper
 import requests
 from utils import get_results
 
-def get_data_by_scrapping(rut, src_path, headers):
+def getProfileRutificador(rut, src_path, headers):
     full_path = f'{src_path}/rut'
     
     if not validate(rut):
@@ -15,12 +15,14 @@ def get_data_by_scrapping(rut, src_path, headers):
     rut = format_rut(rut)
 
     payload = {'term': rut}
+    
     session = requests.Session()
     scraper = cloudscraper.create_scraper(sess=session, debug=True)
     
     req = scraper.post(full_path, headers=headers, data=payload)
     if req.status_code == 200:
         results = get_results(req)
+        
         if not results:
             return {
                 'status': 404,
