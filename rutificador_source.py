@@ -16,7 +16,10 @@ class RutificadorSource(DataSource):
         if not validate(self.rut):
             return {
                 'status': 400,
-                'error': 'Rut invalido.'
+                'data': {
+                    'error': 'Rut invalido.'
+                }
+                
             }
     
         rut = format_rut(self.rut)
@@ -25,26 +28,56 @@ class RutificadorSource(DataSource):
         session = requests.Session()
         # https://github.com/VeNoMouS/cloudscraper -> bypass Cloudflare's anti-bot page
         scraper = cloudscraper.create_scraper(sess=session, debug=True)
-    
-        req = scraper.post(full_path, headers=self.headers, data=payload)
-        if req.status_code == 200:
-            results = get_results(req)
+
+        try: 
+            req = scraper.post(full_path, headers=self.headers, data=payload, timeout=10)
         
-            if not results:
+            if req.status_code == 200:
+                results = get_results(req)
+            
+                if not results:
+                    return {
+                        'status': 404,
+                        'data': {
+                            'error': 'No se han encontrado resultados'
+                        }
+                        
+                    }
+                
+                document, dv = results[0]['rut'].split('-')
                 return {
-                    'status': 404,
-                    'error': 'No se han encontrado resultados',
+                    'status': 200, 
+                    'data': {
+                        'error': None,
+                        'nombre': results[0]['nombre'],
+                        'document': clean(document),
+                        'dv': dv,
+                        'sexo': results[0]['sexo'],
+                        'direccion': results[0]['direccion'],
+                        'ciudad/comuna': results[0]['ciudad']
+                    }
+                    
+                }
+            else:
+                return {'status': 400,
+                        'data': {
+                            'error': 'Ha ocurrido un error al realizar consulta.'
+                        } 
+                    }
+        
+        except requests.exceptions.Timeout:
+            return {
+                    'status': 400,
+                    'data': {
+                        'error': "Timeout en la solicitud",
+                        'nombre': None,
+                        'document': None,
+                        'dv': None,
+                        'sexo': None,
+                        'direccion': None,
+                        'ciudad/comuna': None
+                    }
+                    
                 }
         
-            return {
-                'status': 200,
-                'error': None,
-                'nombre': results[0]['nombre'],
-                'rut': results[0]['rut'],
-                'sexo': results[0]['sexo'],
-                'direccion': results[0]['direccion'],
-                'ciudad/comuna': results[0]['ciudad']
-            }
-        else:
-            return {'response': req.text}
         

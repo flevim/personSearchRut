@@ -43,13 +43,9 @@ def get_data_by_rut(rut):
     source_fetcher = SourceFetcher()
     
     source_fetcher.add_source(rutificador_src)
-    source_fetcher.add_source(sii_src)
+    #source_fetcher.add_source(sii_src)
     profile = source_fetcher.fetch_source(rut)
-    #print(profile)
-    #data_scrapping_src = getDataRutificador.getProfileRutificador(rut, sources['rutificador'], headers_rutificador)
-    #data_api_src = getDataSII.getProfileSII(rut, sources['sii'], headers_sii)
-    #combined_data = {**data_scrapping_src, **data_api_src}
-    
+
     return jsonify(profile), 200
 
 
