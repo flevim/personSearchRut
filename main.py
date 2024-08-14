@@ -27,8 +27,16 @@ sources = {
 @app.route('/consulta', methods=['GET'])
 def request_data():
     rut_param = request.args.get('rut')
-    
     if rut_param:
+        if not validate(rut_param.lstrip('0')):
+            return {
+                'status': 400,
+                'data': {
+                    'error': 'Rut invalido.'
+                }
+                
+        }
+    
         return get_data_by_rut(rut_param)
     
     else:
@@ -42,8 +50,8 @@ def get_data_by_rut(rut):
     sii_src = SIISource(rut, sources['sii'], headers_sii)
     source_fetcher = SourceFetcher()
     
-    source_fetcher.add_source(rutificador_src)
-    #source_fetcher.add_source(sii_src)
+    #source_fetcher.add_source(rutificador_src)
+    source_fetcher.add_source(sii_src)
     profile = source_fetcher.fetch_source(rut)
 
     return jsonify(profile), 200

@@ -16,7 +16,8 @@ class SIISource(DataSource):
     def get_profile(self):
         source_path = self.src_path
         code, captcha, error = self.solve_captcha()   
-        if error:
+        while error:
+            code, captcha, error = self.solve_captcha()   
             return {"actividades": [], "errorSII": "Error al resolver captcha de fuente SII"}
 
         rut_digits, dv = self.rut.split('-')
@@ -97,7 +98,7 @@ class SIISource(DataSource):
             }
             activities.append(activity)
 
-            return {"actividades": activities}
+        return {"actividades": activities}
         
     
         

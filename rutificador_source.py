@@ -13,15 +13,7 @@ class RutificadorSource(DataSource):
     def get_profile(self):
         full_path = f'{self.src_path}/rut'
         
-        if not validate(self.rut):
-            return {
-                'status': 400,
-                'data': {
-                    'error': 'Rut invalido.'
-                }
-                
-            }
-    
+        
         rut = format_rut(self.rut)
         
         payload = {'term': rut}
